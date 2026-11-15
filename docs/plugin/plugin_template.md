@@ -1,6 +1,6 @@
 code in file "plugins/plugin_template.py":
 ```python
-from plugin_tools.plugin_types import (PluginApi, CommandContext, PluginData)
+from plugins.plugin_tools.plugin_types import (PluginApi, CommandContext, PluginData)
 PLUGIN_NAME = "plugin_template"
 
 def destructor(plugin_space) -> None:

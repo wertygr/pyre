@@ -29,8 +29,6 @@ end test script
 
 ```python
 for i in lines:
-    if not lines[i]:
-        continue
     data.command = lines[i]
     data.api["pars_command"](data)
 ```
@@ -40,6 +38,6 @@ for i in lines:
 <details> <summary> read also </summary>
 
 [api](../../plugin/api/api.md)\
-[api["pars_command"]](../../plugin/api/api_object/pars_command.md)
+[api\["pars_command"\]](../../plugin/api/api_object/pars_command.md)
 
 </details>

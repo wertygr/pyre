@@ -2,7 +2,7 @@ import importlib.util
 import os
 import sys
 from types import ModuleType
-from typing import Any
+from typing import Any, Callable
 
 from pyre_core import (
     Data,
@@ -21,7 +21,7 @@ def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
 def _destructor_call(module: ModuleType|None, data: Data) -> None:
     if module is None:
         return
-    if hasattr(module, "destructor"):
+    if isinstance(getattr(module, "destructor", None), Callable):
         try:
             module.destructor(plugin_space=data.plugin_space)
         except Exception as e:
@@ -43,7 +43,7 @@ def load_plugin(data: Data, plugin_name: str) -> None:
         module = _plugin_cache_load(plugin_name, plugin_settings, data)
         data.repl_mode[plugin_name] = module
         data.plugin_list.add(plugin_name)
-        module.main (api=data.api if plugin_settings.get("api", False) else {}, command_context={
+        module.main(api=data.api if plugin_settings.get("api", False) else {}, command_context={
             "argv": data.argv,
             "argc": data.argc,
             "postfix": data.postfix

@@ -31,7 +31,7 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 | name    | type      |                           description |
 |:--------|-----------|--------------------------------------:|
 | argc    | int       |                 size args in commands |
-| arhv    | list[str] |                                  args |
+| argv    | list[str] |                                  args |
 | postfix | str       |  the entire line after the first word |
 </details>
 

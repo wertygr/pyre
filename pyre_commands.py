@@ -238,7 +238,7 @@ def run_script(data: Data):
     try:
         with open(path) as f:
             for i in f:
-                if not i:
+                if i.splitlines():
                     continue
                 data.command = i
                 data.api["pars_command"](data) # type: ignore

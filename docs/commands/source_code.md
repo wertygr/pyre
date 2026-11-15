@@ -11,14 +11,14 @@ _?_ <object> <flags>
 |:----------|-----------|------------|:------------------------------------------------------------------------:|
 | copy      | bool flag | False      |                           copy code in buffer                            |
 | silent    | bool flag | False      |                          do not print on screen                          |
-| dis       | mode      | Flase      |                              get byte-code                               |
+| dis       | mode      | False      |                              get byte-code                               |
 | unwrap    | bool flag | False      |                           removing decorators                            |
-| closure   | bool flag | Flase      |                          unwinding of closures                           |
+| closure   | bool flag | False      |                          unwinding of closures                           |
 | info      | mode      | False      |                             info for object                              |
-| signature | mode      | Flase      |                              get signature                               |
+| signature | mode      | False      |                              get signature                               |
 | code      | mode      | True       |                             get source code                              |
-| ast       | moed      | False      |                              vive ast tree                               |
-| not_eval  | bool flag | Fslse      | do not attempt to retrieve the object, but rather process it as a string |
+| ast       | mode      | False      |                              viwe ast tree                               |
+| not_eval  | bool flag | False      | do not attempt to retrieve the object, but rather process it as a string |
 <details> <summary> example </summary>
 
 ```pycon

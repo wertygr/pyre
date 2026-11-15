@@ -31,7 +31,7 @@ class PluginApi(TypedDict):
     buffer: OptBuffer
     alias_parser: Callable[[PluginData, dict, list[str], str], list]
     data: PluginData
-    register_repl_source: Callable[[PluginData, str], None]
+    register_repl_source: Callable[[str, PluginData], None]
     hook_dispatch: Callable[[PluginData, str, dict], list[Any]]
     traceback_format: Callable[[TracebackType|BaseException|str], str]
     flag_mapping: Callable[
@@ -45,14 +45,18 @@ class CommandContext(TypedDict):
     postfix: str
     argc: int
 
+class PluginSettings(TypedDict, total=False):
+    file: str
+    api: bool
+    cache: bool
+    hooks: list[str]
+
 class PluginData(Protocol):
     last_error: str
-    base_command: dict
     repl_mode: dict
     _repl_cache_id: int
     settings: dict
     script_dir: str
-    repl_file: str
     pt_style: BaseStyle
 
     api: PluginApi
@@ -61,9 +65,9 @@ class PluginData(Protocol):
     _pyt_plus_old_text: str
 
     command: str
-    command_prefix: str
-    command_arg_int: int
-    command_arg: list[str]
+    postfix: str
+    argc: int
+    argv: list[str]
 
     plugin_list: set[str]
 

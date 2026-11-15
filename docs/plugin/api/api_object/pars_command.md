@@ -1,4 +1,6 @@
-<details> <summary> pars_command </summary> 
+This function is necessary to execute a string as a command.
+
+<details> <summary> example </summary>
 
 ```python
 from plugins.plugin_tools.plugin_types import (PluginData, PluginApi, CommandContext)

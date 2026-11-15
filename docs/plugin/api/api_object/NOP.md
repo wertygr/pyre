@@ -1,0 +1,1 @@
+a function that takes *args, **kwargs and always returns None

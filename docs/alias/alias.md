@@ -18,7 +18,7 @@ alias:
 |:---------|:---------------:|---------------------------------------------------------------------------------------------------:|
 | !        |       str       |                                                                                         name alias |
 | scope    |       str       |                                                                                        scope alias |
-| positoin | list[int]\|null |  A parameter specifying where the macro will be placed; if set to "None", it is applied everywhere |
+| position | list[int]\|null |  A parameter specifying where the macro will be placed; if set to "None", it is applied everywhere |
 | value    |    list[str]    |                                                                                        value alias |
 </details>
 
@@ -37,12 +37,12 @@ alias:
 {
     "alias_dict": {
         "!": {
-            "scope": "locals",
+            "scope": "local",
             "position": [0],
             "value": ["_sh_"]
         },
         "pyt-ev": {
-            "scope": "locals",
+            "scope": "local",
             "position": [0],
             "value": ["_pyt-eval_"]
         },
@@ -67,10 +67,10 @@ after breaking it down into arguments:
 after global alias substitution:
 ["!", "ls", "/", "_&_", "pyt-ev", "5+5"]
 
-after splitting into sub-teams:
+after splitting into subcommand:
 [["!", "ls", "/"], ["pyt-ev", "5+5"]]
 
-after global alias substitution:
+after local alias substitution:
 [["_sh_", "ls", "/"], ["_pyt-eval_", "5+5"]]
 ```
 </details>
@@ -78,8 +78,8 @@ after global alias substitution:
 <details> <summary> macros </summary>
 N - number
 
-| syntax |      descripion |
-|:-------|----------------:|
-| \>#N   |  relative shift |
-| !#N    |  absolute index |
+| syntax |    description |
+|:-------|---------------:|
+| \>#N   | relative shift |
+| !#N    | absolute index |
 </details>
