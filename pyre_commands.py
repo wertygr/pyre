@@ -99,7 +99,7 @@ def pyt_exec(data: Data) -> None:
     except Exception as e:
         post(e, data)
 
-def pyt_eval(data: Data) ->  None:
+def pyt_eval(data: Data) -> None:
     try:
         pft(eval(data.postfix, data.repl_mode), data)
     except Exception as e:
@@ -236,11 +236,11 @@ def critical_error(*_):
 def run_script(data: Data):
     path = data.argv[2]
     try:
-        with open(path) as f:
-            for i in f:
-                if i.splitlines():
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
                     continue
-                data.command = i
+                data.command = line
                 data.api["pars_command"](data) # type: ignore
     except Exception as e:
         post(e, data)

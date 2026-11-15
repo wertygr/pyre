@@ -10,7 +10,7 @@ class Stringable(Protocol):
         ...
 
 class OptBuffer(Protocol):
-    def __call__(self, data: PluginData, mode: str, text: str = "", use_hook: bool = True):
+    def __call__(self, data: PluginData, mode: str, text: str = "", use_hook: bool = True) -> str|None:
         ...
 
 class OptPost(Protocol):
@@ -18,27 +18,51 @@ class OptPost(Protocol):
         ...
 
 class OptPft(Protocol):
-    def __call__(self, text: Stringable, data: PluginData, end: str= "\n", use_hook: bool = True, file:TextIO = sys.stdout) -> None:
+    def __call__(self, text: Stringable, data: PluginData, end: str = "\n", use_hook: bool = True, file: TextIO = sys.stdout) -> None:
+        ...
+
+class OptSettingsLoad(Protocol):
+    def __call__(self, data: PluginData, file: str = ".pyre_settings.json") -> None:
+        ...
+
+class OptCommandSeparators(Protocol):
+    def __call__(self, command_arg: list[str], token: str = "_&_") -> list[list[str]]:
+        ...
+
+class OptAliasParser(Protocol):
+    def __call__(self, alias_dict: dict, command_arg: list[str], mode: str) -> list[str]:
+        ...
+
+class OptRegisterReplSource(Protocol):
+    def __call__(self, source: str, data: PluginData) -> str:
+        ...
+
+class OptFlagMapping(Protocol):
+    def __call__(
+        self,
+        flag_map: dict[str, tuple[Callable[..., Any], bool]],
+        command_args: list[str],
+        *args: Any,
+        **kwargs: Any
+    ) -> None:
         ...
 
 class PluginApi(TypedDict):
-    settings_load: Callable[[PluginData, str], None]
+    settings_load: OptSettingsLoad
     post: OptPost
     pft: OptPft
-    command_separators: Callable[[list[str]], list[list[str]]]
+    command_separators: OptCommandSeparators
     pars_command: Callable[[PluginData], None]
     dispatcher: Callable[[PluginData], None]
     buffer: OptBuffer
-    alias_parser: Callable[[PluginData, dict, list[str], str], list]
+    alias_parser: OptAliasParser
     data: PluginData
-    register_repl_source: Callable[[str, PluginData], None]
+    register_repl_source: OptRegisterReplSource
     hook_dispatch: Callable[[PluginData, str, dict], list[Any]]
     traceback_format: Callable[[TracebackType|BaseException|str], str]
-    flag_mapping: Callable[
-        [dict[str, tuple[Callable[..., Any], bool]], list[str], Any, Any],
-        None
-    ]
+    flag_mapping: OptFlagMapping
     reverse_search_flag: Callable[[set[str], list[str], str], str]
+    NOP: Callable[..., None]
 
 class CommandContext(TypedDict):
     argv: list[str]
@@ -56,12 +80,13 @@ class PluginData(Protocol):
     repl_mode: dict
     _repl_cache_id: int
     settings: dict
-    script_dir: str
     pt_style: BaseStyle
+    script_dir: str
 
     api: PluginApi
 
     plugin_space: dict
+    _local_repl_mode: dict
     _pyt_plus_old_text: str
 
     command: str

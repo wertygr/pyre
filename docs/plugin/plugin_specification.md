@@ -3,9 +3,8 @@
 plugins are loaded in [data.repl_mode](api/api_object/data/repl_mode.md) and sys.modules
 </details>
 
-<details> <summary> sandbox </summary>
-there is no sandbox
-</details>
+> [!WARNING]
+> there is no sandbox
 
 <details> <summary> open file and import in plugin </summary>
 Plugins open files and import modules relative to the project root

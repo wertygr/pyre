@@ -15,6 +15,7 @@ api: dict
         "traceback_format": traceback_format,
         "flag_mapping": flag_mapping,
         "reverse_search_flag": reverse_search_flag,
+        "NOP": NOP,
     }
 ```
 

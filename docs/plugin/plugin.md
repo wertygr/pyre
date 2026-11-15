@@ -1,8 +1,8 @@
 **plugins:**
 
-<details> <summary>Warning</summary>
-plugins do not have a sandbox!!!
-</details>
+> [!WARNING]
+> plugins do not have a sandbox!!!
+
 
 <details> <summary>contract</summary>
 

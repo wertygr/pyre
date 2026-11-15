@@ -28,10 +28,15 @@ end test script
 - code: 
 
 ```python
-for i in lines:
-    data.command = lines[i]
-    data.api["pars_command"](data)
+with open(path, encoding="utf-8") as f:
+    for line in f:
+        if not line.strip():
+            continue
+        data.command = line
+        data.api["pars_command"](data)
 ```
+
+Empty lines are skipped.
 
 </details>
 
