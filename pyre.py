@@ -109,6 +109,7 @@ def pars_command(data: Data) -> None:
 #_________________________________________________________________________________________________
 
 def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
+    data.settings_file = os.path.abspath(file)
     try:
         with open(file, encoding="utf-8") as f:
             settings = json.load(f)
@@ -176,7 +177,7 @@ def repl_cycle(data: Data) -> None:
         try:
             data.command = session.prompt(
                 data.settings["prompt"],
-                completer=DynamicCompleter(lambda: completer(data)),
+                completer=DynamicCompleter(lambda: completer(data)) if data.settings["completer"] else None,
                 multiline=data.settings["multiline"],
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,

@@ -13,7 +13,7 @@ from prompt_toolkit.styles import BaseStyle
 from pygments.lexers import PythonLexer
 from pygments.lexer import RegexLexer
 
-from pyre_const import NOP
+from pyre_const import NOP, SETTINGS_FILE
 
 class Data:
     def __init__(self) -> None:
@@ -21,6 +21,7 @@ class Data:
         self.repl_mode: dict = {}
         self._repl_cache_id: int = 0
         self.settings: dict = {}
+        self.settings_file: str = SETTINGS_FILE
         self.pt_style: BaseStyle # type: ignore
         self.script_dir: str = ""
         self.api: PluginApi = {} # type: ignore
@@ -94,7 +95,12 @@ def traceback_format(e: TracebackType|BaseException|str) -> str:
     return e
 
 def post(e: TracebackType|BaseException|str, data: Data, use_hook: bool = True) -> None:
+    is_recursion = isinstance(e, RecursionError)
+    if is_recursion:
+        sys.setrecursionlimit(sys.getrecursionlimit() + 50)
     e = traceback_format(e)
+    if is_recursion:
+        sys.setrecursionlimit(sys.getrecursionlimit() - 50)
     data.last_error = e
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)

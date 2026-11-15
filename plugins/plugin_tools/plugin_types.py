@@ -80,6 +80,7 @@ class PluginData(Protocol):
     repl_mode: dict
     _repl_cache_id: int
     settings: dict
+    settings_file: str
     pt_style: BaseStyle
     script_dir: str
 

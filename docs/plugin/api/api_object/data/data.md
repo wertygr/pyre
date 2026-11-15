@@ -7,6 +7,7 @@
 | [repl_mode](repl_mode.md)                   | dict             | user namespace (globals or isolated locals)                                                      |
 | [api](api.md)                               | PluginApi        | [plugins API](../../api.md) functions                                                            |
 | [settings](settings.md)                     | dict             | loaded settings from `.pyre_settings.json`                                                       |
+| [settings_file](settings_file.md)           | str              | path to the settings file that is currently loaded                                               |
 | [last_error](last_error.md)                 | str              | last error passed to [post](../post.md)                                                          |
 | [pt_style](pt_style.md)                     | BaseStyle        | prompt_toolkit style built from `settings["color"]`                                              |
 | [script_dir](script_dir.md)                 | str              | directory of the pyre kernel                                                                     |

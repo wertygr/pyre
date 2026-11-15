@@ -164,7 +164,7 @@ def pyt_pp(data: Data) -> None:
             data._pyt_plus_old_text = edit_session.prompt(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
                 default=data._pyt_plus_old_text,
-                completer=make_jedi_completer(data),
+                completer=make_jedi_completer(data) if not "no_jedi" in data.argv else None,
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,

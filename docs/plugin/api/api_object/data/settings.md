@@ -27,5 +27,6 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space):
 <details> <summary> read also </summary> 
 
 * [.pyre_settings.json](../../../../settings/settings.md)
+* [settings_file](settings_file.md)
 
 </details>

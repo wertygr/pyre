@@ -16,6 +16,7 @@ DEFAULT_SETTINGS = {
     "vi_mode": False,
     "multiline": False,
     "separator": False,
+    "completer": True,
     "alias_locals": False,
     "mouse_support": False,
     "alias_globals": False,
