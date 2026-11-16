@@ -63,7 +63,7 @@ class PluginApi(TypedDict):
     flag_mapping: OptFlagMapping
     reverse_search_flag: Callable[[set[str], list[str], str], str]
     NOP: Callable[..., None]
-    require_args: Callable[[CommandFunc], CommandFunc]
+    require_args: Callable[[int], Callable[[CommandFunc], CommandFunc]]
 
 class CommandContext(TypedDict):
     argv: list[str]
@@ -115,6 +115,7 @@ class PluginData(Protocol):
     plugin_space: dict
     _local_repl_mode: dict
     _pyt_plus_old_text: str
+    _buffer: str
 
     command: str
     postfix: str

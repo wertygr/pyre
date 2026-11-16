@@ -18,15 +18,15 @@ from pyre_core import (
     reverse_search_flag,
     require_args
 )
-from pyre_commands import (
-    sh,
+from commands.shell_commands import shell_command
+from commands.source_code import source_code
+from commands.pyt import (
     pyt,
     pyt_pp,
     pyt_eval,
     pyt_exec,
-    source_code,
-    shell_command
 )
+from commands.sh import sh
 from pyre_plug_load import (
     load_plugin,
     hooks_dispatch

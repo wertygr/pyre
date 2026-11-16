@@ -7,7 +7,7 @@ commands table
 | settings_reload                        | 2-3              |                 reread settings from disk |
 | [run](shell_commands/run.md)           | 3                |                                run script |
 | read_vf                                | 3                |                       read linecache file |
-| unload_plugin                          | 3                |             unloading plugins from memory |
+| unload_plugin                          | 2                |             unloading plugins from memory |
 | ls_vf                                  | 2                |                       list linecache file |
 | del_vf                                 | 3                |                     delete linecache file |
 | critical_error                         | 2                | artificial triggering of a critical error |

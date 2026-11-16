@@ -35,6 +35,7 @@ class Data:
         self.lexer: type[RegexLexer] = PythonLexer
         self.lexer_instance: RegexLexer = self.lexer()
         self.plugin_list: set[str] = set()
+        self._buffer: str = ""
 
 NOP = lambda *_, **__: None
 CommandFunc = Callable[[Data], None]
@@ -53,14 +54,21 @@ def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[
         maxlen=0
     )
 
-def require_args(min_args) -> Callable[[CommandFunc], CommandFunc]:
-    def decorator(func) -> Callable[[Data], Any]:
+def create_text_flags(text: str, data: Data) -> dict[str, tuple[Callable, bool]]:
+    return {
+        "copy": (lambda: buffer(data,"write", text), True),
+        "silent": (lambda: pft(text, data, end=""), False),
+    }
+text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
+
+def require_args(min_argc: int) -> Callable[[CommandFunc], CommandFunc]:
+    def decorator(func: CommandFunc) -> CommandFunc:
         @wraps(func)
-        def wrapper(data) -> Any:
-            if data.argc < min_args:
-                post(f"[{func.__name__}]: not enough arguments(min argc: {min_args})", data)
-                return None
-            return func(data)
+        def wrapper(data: Data) -> None:
+            if data.argc < min_argc:
+                post(f"[{func.__name__}]: not enough arguments(min argc: {min_argc})", data)
+                return
+            func(data)
         return wrapper
     return decorator
 
@@ -83,11 +91,11 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
 def buffer(data: Data, mode: str, text: str = "", use_hook: bool = True) -> str|None:
     data.api["hook_dispatch"](data, "buffer", {"text": text, "mode": mode}) if use_hook else None
     if mode == "read":
-        return buffer.text
+        return data._buffer
     elif mode == "write":
-        buffer.text = text
+        data._buffer = text
     elif mode == "write_add":
-        buffer.text += text
+        data._buffer += text
 buffer.text = ""
 
 def traceback_format(e: TracebackType|BaseException|str) -> str:

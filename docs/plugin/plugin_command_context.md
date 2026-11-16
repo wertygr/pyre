@@ -37,5 +37,5 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 
 <details> <summary> read also </summary>
 
-[pipeline](../commands/pipeline.md)
+[pipeline](../commands/command_separator.md)
 </details>

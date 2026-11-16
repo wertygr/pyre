@@ -66,7 +66,7 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 | shlex                                                   | bool |                                                          use [shlex](https://docs.python.org/3/library/shlex.html) for command parsing |
 | posix                                                   | bool |                                                                                      use posix parsing for parsing command(with shlex) |
 | multiline                                               | bool |                                                                                                                          use multiline |
-| separator                                               | bool |                                                                                                                     use pipeline(\_&_) |
+| separator                                               | bool |                                                                                                            use command separator(\_&_) |
 | [repl_mode](../plugin/api/api_object/data/repl_mode.md) | str  |                                                                                                                     namespace settings |
 | alias_globals<br/>alias_locals                          | bool |                                                                                                                              use alias |
 | [alias_dict](../alias/alias.md)                         | dict |                                                                                                                           regist alias |
