@@ -5,6 +5,7 @@ import shlex
 from pyre_bottom_toolbar import bottom_toolbar
 from pyre_alias import alias_parser
 from pyre_core import (
+    NOP,
     pft,
     post,
     command_separators,
@@ -14,7 +15,8 @@ from pyre_core import (
     line_num,
     traceback_format,
     flag_mapping,
-    reverse_search_flag
+    reverse_search_flag,
+    require_args
 )
 from pyre_commands import (
     sh,
@@ -33,7 +35,6 @@ from pyre_const import (
     DEFAULT_SETTINGS,
     FILE_HISTORY,
     SETTINGS_FILE,
-    NOP
 )
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
@@ -157,7 +158,8 @@ def initialisation() -> Data:
         "traceback_format": traceback_format,
         "flag_mapping": flag_mapping,
         "reverse_search_flag": reverse_search_flag,
-        "NOP": NOP
+        "NOP": NOP,
+        "require_args": require_args
     }
     hooks_dispatch(data, "init", {"data": data})
     return data
@@ -193,10 +195,7 @@ def repl_cycle(data: Data) -> None:
             post(e, data)
             return
 
-def main() -> None:
-    repl_cycle(initialisation())
-
 if __name__ == "__main__":
-    main()
+    repl_cycle(initialisation())
 
 #_________________________________________________________________________________________________

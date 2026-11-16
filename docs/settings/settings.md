@@ -37,6 +37,7 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
     "multiline": false,
     "alias_globals": true,
     "alias_locals": true,
+    "completer": true,
     "posix": true,
     "alias_dict": {
         "example_alias": {
@@ -74,6 +75,7 @@ The settings are located in the file: "./.pyre_settings.json"(parsing for std li
 | vi_mode                                                 | bool |                                                                                                                                vi_mode |
 | mouse_suport                                            | bool |                                                                                                                           mouse_suport |
 | bottom_toolbar                                          | bool |                                                                                                                  enable bottom_toolbar |
+| completer                                               | bool |                                                                                                                   using auto completer |
 
 </details>
 

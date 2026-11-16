@@ -164,7 +164,7 @@ def pyt_pp(data: Data) -> None:
             data._pyt_plus_old_text = edit_session.prompt(
                 line_num(0, 0, 0, data.settings["line_name_format"]),
                 default=data._pyt_plus_old_text,
-                completer=make_jedi_completer(data) if not "no_jedi" in data.argv else None,
+                completer=make_jedi_completer(data) if (not "no_jedi" in data.argv) or not data.settings["completer"] else None,
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
                 multiline=True,
@@ -246,8 +246,8 @@ def run_script(data: Data):
         post(e, data)
 
 shell_commands_map = {
-    "clear": lambda *_: os.system("cls") if os.name == "nt" else print("\033c", end=""),
-    "exit": lambda *_: sys.exit(0),
+    "clear": lambda _: os.system("cls") if os.name == "nt" else print("\033c", end=""),
+    "exit": lambda _: sys.exit(0),
     "settings_reload": lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]),
     "run": run_script,
     "read_vf": read_vf,
@@ -263,4 +263,4 @@ shell_commands_map = {
 
 @require_args(2)
 def shell_command(data: Data) -> None:
-    shell_commands_map.get(data.argv[1], lambda *_: post(f"[shell_command]: unknown command: {data.argv[1]}", data))(data)
+    shell_commands_map.get(data.argv[1], lambda _: post(f"[shell_command]: unknown command: {data.argv[1]}", data))(data)

@@ -28,6 +28,7 @@
     "separator": true,
     "repl_mode": "locals",
     "shell_container": true,
+    "completer": true,
     "shlex": true,
     "multiline": false,
     "alias_globals": true,

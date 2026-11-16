@@ -15,3 +15,4 @@ _pyt++_ <flags>
 | not_cache |                         do not save to cache |
 | paste     |                              paste to buffer |
 | copy      |                             copy from buffer |
+| no_jedi   |                       disable jedi completer |

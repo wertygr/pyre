@@ -63,6 +63,7 @@ class PluginApi(TypedDict):
     flag_mapping: OptFlagMapping
     reverse_search_flag: Callable[[set[str], list[str], str], str]
     NOP: Callable[..., None]
+    require_args: Callable[[CommandFunc], CommandFunc]
 
 class CommandContext(TypedDict):
     argv: list[str]
@@ -75,11 +76,36 @@ class PluginSettings(TypedDict, total=False):
     cache: bool
     hooks: list[str]
 
+class AliasSettings(TypedDict, total=False):
+    scope: str
+    position: list[int] | None
+    value: list[str]
+
+class Settings(TypedDict, total=True):
+    color: dict[str, str]
+    plugin: dict[str, PluginSettings]
+    alias_dict: dict[str, AliasSettings]
+    posix: bool
+    shlex: bool
+    shell: bool
+    vi_mode: bool
+    multiline: bool
+    separator: bool
+    completer: bool
+    alias_locals: bool
+    mouse_support: bool
+    alias_globals: bool
+    bottom_toolbar: bool
+    shell_container: bool
+    prompt: str
+    repl_mode: str
+    line_name_format: str
+
 class PluginData(Protocol):
     last_error: str
     repl_mode: dict
     _repl_cache_id: int
-    settings: dict
+    settings: Settings
     settings_file: str
     pt_style: BaseStyle
     script_dir: str
@@ -99,3 +125,5 @@ class PluginData(Protocol):
 
     lexer: type[RegexLexer]
     lexer_instance: RegexLexer
+
+CommandFunc = Callable[[PluginData], None]

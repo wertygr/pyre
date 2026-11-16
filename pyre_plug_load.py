@@ -14,8 +14,8 @@ def _plugin_load(plugin: str, f_locate: str) -> ModuleType:
     if spec is None or spec.loader is None:
         raise ImportError(f"[_plugin_load]: {plugin} not found(f_locat: {f_locate})")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
     sys.modules[plugin] = module
+    spec.loader.exec_module(module)
     return module
 
 def _destructor_call(module: ModuleType|None, data: Data) -> None:
@@ -86,5 +86,5 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
             data.plugin_list.add(i)
             result.append(result_plug_load)
         except Exception as e:
-            post(e, data, use_hook=False if hook_name in ("pft", "post", "__any__") else True)
+            post(e, data, use_hook=False if hook_name in {"pft", "post", "__any__"} else True)
     return result

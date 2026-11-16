@@ -13,7 +13,7 @@ from prompt_toolkit.styles import BaseStyle
 from pygments.lexers import PythonLexer
 from pygments.lexer import RegexLexer
 
-from pyre_const import NOP, SETTINGS_FILE
+from pyre_const import SETTINGS_FILE
 
 class Data:
     def __init__(self) -> None:
@@ -36,6 +36,9 @@ class Data:
         self.lexer_instance: RegexLexer = self.lexer()
         self.plugin_list: set[str] = set()
 
+NOP = lambda *_, **__: None
+CommandFunc = Callable[[Data], None]
+
 def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
     for i in reversed(flags):
         if i in modes:
@@ -50,8 +53,8 @@ def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[
         maxlen=0
     )
 
-def require_args(min_args) -> Callable[[Callable], Callable]:
-    def decorator(func) -> Callable:
+def require_args(min_args) -> Callable[[CommandFunc], CommandFunc]:
+    def decorator(func) -> Callable[[Data], Any]:
         @wraps(func)
         def wrapper(data) -> Any:
             if data.argc < min_args:

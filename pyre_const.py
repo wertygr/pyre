@@ -1,5 +1,3 @@
-NOP = lambda *_, **__: None
-
 SETTINGS_FILE = ".pyre_settings.json"
 FILE_HISTORY = ".py_history"
 
@@ -16,7 +14,7 @@ DEFAULT_SETTINGS = {
     "vi_mode": False,
     "multiline": False,
     "separator": False,
-    "completer": True,
+    "completer": False,
     "alias_locals": False,
     "mouse_support": False,
     "alias_globals": False,
