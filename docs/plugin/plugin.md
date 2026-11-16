@@ -88,4 +88,5 @@ unload plugin:
 * [plugin specification](plugin_specification.md)
 * [plugin type](plugin_types.md)
 * [plugin template](plugin_template.md)
+* [sdk](sdk/main.md)
 </details>

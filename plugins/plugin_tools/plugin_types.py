@@ -128,3 +128,5 @@ class PluginData(Protocol):
     lexer_instance: RegexLexer
 
 CommandFunc = Callable[[PluginData], None]
+
+__all__ = ["PluginData", "PluginApi", "PluginSettings", "Settings", "AliasSettings", "CommandContext"]
