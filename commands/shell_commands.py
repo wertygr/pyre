@@ -4,7 +4,7 @@ import linecache
 from collections import deque
 from functools import partial
 
-from pyre_plug_load import (unload_plugin, load_plugin)
+from pyre_plug_load import unload_plugin, load_plugin
 from pyre_core import (
     post,
     buffer,
@@ -13,9 +13,7 @@ from pyre_core import (
     require_args,
     text_mapping,
 )
-from pyre_const import (
-    SETTINGS_FILE
-)
+from pyre_const import SETTINGS_FILE
 
 _write_modes = (lambda mode, data:
     post(f"[shell_command::buffer_command[{mode}]]: not enough arguments", data) if data.argc < 4 else
@@ -57,7 +55,7 @@ def _hook_run(data: Data):
         post(e, data)
         return
     hooks_dispatch(data, hook_name, hook_arg)
-def _critical_error(*_):
+def _critical_error(_):
     raise RuntimeError("critical error in core(tester except)")
 @require_args(3)
 def _run_script(data: Data):
