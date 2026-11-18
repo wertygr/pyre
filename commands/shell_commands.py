@@ -17,16 +17,17 @@ from pyre_const import (
     SETTINGS_FILE
 )
 
+_write_modes = (lambda mode, data:
+    post(f"[shell_command::buffer_command[{mode}]]: not enough arguments", data) if data.argc < 4 else
+    buffer(data, mode, data.argv[3])
+)
+
 @require_args(3)
 def _buffer_command(data: Data):
-    write_modes = (lambda mode:
-        post(f"[shell_command::buffer_command[{mode}]]: not enough arguments", data) if data.argc < 4 else
-        buffer(data, mode, data.argv[3])
-    )
     {
         "read": lambda: pft(buffer(data, "read"), data, end=""),
-        "write": lambda: write_modes("write"),
-        "write_add": lambda: write_modes("write_add"),
+        "write": lambda: _write_modes("write", data),
+        "write_add": lambda: _write_modes("write_add",data),
         "clean": lambda: buffer(data,"write", "")
     }.get(data.argv[2], lambda: post(f"[shell_command::buffer_command]: unknown subcommand: {data.argv[2]}", data))()
 @require_args(3)
@@ -55,7 +56,7 @@ def _hook_run(data: Data):
     except Exception as e:
         post(e, data)
         return
-    hooks_dispatch(data, hook_name, hook_arg) # type: ignore
+    hooks_dispatch(data, hook_name, hook_arg)
 def _critical_error(*_):
     raise RuntimeError("critical error in core(tester except)")
 @require_args(3)
@@ -67,7 +68,7 @@ def _run_script(data: Data):
                 if not line.strip():
                     continue
                 data.command = line
-                data.api["pars_command"](data) # type: ignore
+                data.api["pars_command"](data)
     except Exception as e:
         post(e, data)
 

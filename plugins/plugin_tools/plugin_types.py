@@ -1,7 +1,7 @@
 from __future__ import annotations
 import sys
 from types import TracebackType
-from typing import TypedDict, Callable, Any, Protocol, TextIO
+from typing import TypedDict, Callable, Any, Protocol, TextIO, Literal
 from prompt_toolkit.styles import BaseStyle
 from pygments.lexer import RegexLexer
 
@@ -10,7 +10,7 @@ class Stringable(Protocol):
         ...
 
 class OptBuffer(Protocol):
-    def __call__(self, data: PluginData, mode: str, text: str = "", use_hook: bool = True) -> str|None:
+    def __call__(self, data: PluginData, mode: Literal["read", "write", "write_add"], text: str = "", use_hook: bool = True) -> str|None:
         ...
 
 class OptPost(Protocol):

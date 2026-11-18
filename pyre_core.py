@@ -2,9 +2,11 @@ import sys
 import traceback
 import linecache
 from collections import deque
-from typing import Any, Callable, TextIO
+from typing import Any, Callable, TextIO, Literal
 from types import TracebackType
 from functools import wraps
+
+from plugins.plugin_tools import PluginData
 from plugins.plugin_tools.plugin_types import (PluginApi)
 
 from prompt_toolkit import print_formatted_text
@@ -15,14 +17,14 @@ from pygments.lexer import RegexLexer
 
 from pyre_const import SETTINGS_FILE
 
-class Data:
+class Data(PluginData):
     def __init__(self) -> None:
         self.last_error: str = ""
         self.repl_mode: dict = {}
         self._repl_cache_id: int = 0
         self.settings: dict = {}
         self.settings_file: str = SETTINGS_FILE
-        self.pt_style: BaseStyle # type: ignore
+        self.pt_style: BaseStyle
         self.script_dir: str = ""
         self.api: PluginApi = {} # type: ignore
         self.plugin_space: dict = {}
@@ -54,12 +56,10 @@ def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[
         maxlen=0
     )
 
-def create_text_flags(text: str, data: Data) -> dict[str, tuple[Callable, bool]]:
-    return {
-        "copy": (lambda: buffer(data,"write", text), True),
+text_mapping = lambda text, argv, data:  flag_mapping({
+        "copy": (lambda: buffer(data, "write", text), True),
         "silent": (lambda: pft(text, data, end=""), False),
-    }
-text_mapping = lambda text, argv, data:  flag_mapping(create_text_flags(text, data), argv)
+    }, argv)
 
 def require_args(min_argc: int) -> Callable[[CommandFunc], CommandFunc]:
     def decorator(func: CommandFunc) -> CommandFunc:
@@ -86,9 +86,9 @@ def pft(text: Any, data: Data, end: str= "\n", use_hook: bool = True, file:TextI
     )
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
-        hooks_dispatch(data, "pft", {"text": f"{text}"}) # type: ignore
+        hooks_dispatch(data, "pft", {"text": f"{text}"})
 
-def buffer(data: Data, mode: str, text: str = "", use_hook: bool = True) -> str|None:
+def buffer(data: Data, mode: Literal["read", "write", "write_add"], text: str = "", use_hook: bool = True) -> str|None:
     data.api["hook_dispatch"](data, "buffer", {"text": text, "mode": mode}) if use_hook else None
     if mode == "read":
         return data._buffer
@@ -96,7 +96,6 @@ def buffer(data: Data, mode: str, text: str = "", use_hook: bool = True) -> str|
         data._buffer = text
     elif mode == "write_add":
         data._buffer += text
-buffer.text = ""
 
 def traceback_format(e: TracebackType|BaseException|str) -> str:
     if isinstance(e, TracebackType):
@@ -115,7 +114,7 @@ def post(e: TracebackType|BaseException|str, data: Data, use_hook: bool = True) 
     data.last_error = e
     if use_hook:
         hooks_dispatch = data.api.get("hook_dispatch", NOP)
-        hooks_dispatch(data, "post", {"err": str(e)}) # type: ignore
+        hooks_dispatch(data, "post", {"err": str(e)})
     pft(e, data, use_hook=use_hook)
 
 def command_separators(command_arg: list[str], token: str = "_&_") -> list[list[str]]:
@@ -144,7 +143,7 @@ def line_num(
         width: int,
         line_number: int,
         is_soft_wrap: int,
-        format_sample: str = "{line_number} |"
+        format_sample: str
     ) -> str:
     return format_sample.format(
          width=width,

@@ -39,7 +39,7 @@ from pyre_const import (
 from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
-from prompt_toolkit.styles.pygments import Style
+from prompt_toolkit.styles import Style
 
 #_________________________________________________________________________________________________
 
@@ -83,14 +83,14 @@ def pars_command(data: Data) -> None:
             data.argv = shlex.split(data.command, posix=bool(data.settings["posix"]))
         except ValueError as e:
             post(e, data)
-            return None
+            return
     else:
         data.argv = data.command.split()
 
     if len(data.argv) < 1:
         e = "[pars_command]: not enough arguments"
         post(e, data)
-        return None
+        return
     if data.settings["alias_globals"]:
         data.argv = alias_parser(data.settings["alias_dict"], data.argv, "global")
     if data.settings["separator"]:
@@ -197,5 +197,3 @@ def repl_cycle(data: Data) -> None:
 
 if __name__ == "__main__":
     repl_cycle(initialisation())
-
-#_________________________________________________________________________________________________
