@@ -1,6 +1,7 @@
 import sys
 import traceback
 import linecache
+import threading
 from collections import deque
 from typing import Any, Callable, TextIO, Literal
 from types import TracebackType
@@ -38,6 +39,9 @@ class Data(PluginData):
         self.lexer_instance: RegexLexer = self.lexer()
         self.plugin_list: set[str] = set()
         self._buffer: str = ""
+        self.async_loop: Any = None
+        self.async_thread: threading.Thread|None = None
+        self.async_plugin: dict[str, Any] = {}
 
 NOP = lambda *_, **__: None
 CommandFunc = Callable[[Data], None]

@@ -31,6 +31,7 @@ from pyre_plug_load import (
     load_plugin,
     hooks_dispatch
 )
+from pyre_async import async_post
 from pyre_const import (
     DEFAULT_SETTINGS,
     FILE_HISTORY,
@@ -159,7 +160,8 @@ def initialisation() -> Data:
         "flag_mapping": flag_mapping,
         "reverse_search_flag": reverse_search_flag,
         "NOP": NOP,
-        "require_args": require_args
+        "require_args": require_args,
+        "async_post": async_post,
     }
     hooks_dispatch(data, "init", {"data": data})
     return data

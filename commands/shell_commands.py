@@ -5,6 +5,13 @@ from collections import deque
 from functools import partial
 
 from pyre_plug_load import unload_plugin, load_plugin
+from pyre_async import (
+    async_start,
+    async_run,
+    async_del,
+    async_stop,
+    async_status,
+)
 from pyre_core import (
     post,
     buffer,
@@ -70,6 +77,39 @@ def _run_script(data: Data):
     except Exception as e:
         post(e, data)
 
+@require_args(3)
+def _async_run(data: Data):
+    plugin_name = data.argv[2]
+    if plugin_name in data.async_plugin:
+        post(f"[shell_command::async_run]: plugin {plugin_name} is already running", data)
+        return
+    module = data.repl_mode.get(plugin_name)
+    if module is None:
+        load_plugin(data, plugin_name)
+        module = data.repl_mode.get(plugin_name)
+    if module is None:
+        return
+    async_run(data, plugin_name, module)
+@require_args(3)
+def _async_del(data: Data):
+    for i in data.argv[2:]:
+        if i not in data.async_plugin:
+            post(f"[shell_command::async_del]: plugin {i} is not running in async mode", data)
+            continue
+        async_del(data, i)
+@require_args(2)
+def _async_start(data: Data):
+    async_start(data)
+@require_args(2)
+def _async_stop(data: Data):
+    async_stop(data)
+@require_args(2)
+def _async_ls(data: Data):
+    status = async_status(data)
+    rows = [f"thread: {'running' if status['thread'] else 'stopped'}"]
+    rows.extend(f"{i} - async" for i in status["plugin"])
+    text_mapping("\n".join(rows), data.argv[2:], data)
+
 shell_commands_map = {
     "clear": lambda _: os.system("cls") if os.name == "nt" else print("\033c", end=""),
     "exit": lambda _: sys.exit(0),
@@ -84,6 +124,11 @@ shell_commands_map = {
     "buffer": _buffer_command,
     "ls_vf": lambda data: text_mapping("\n".join(f"{i} - {sum(len(line) for line in linecache.getlines(i))} char" for i in linecache.cache), data.argv[2:], data),
     "ls_plug": lambda data: text_mapping("\n".join(data.plugin_list), data.argv[2:], data),
+    "async_start": _async_start,
+    "async_run": _async_run,
+    "async_del": _async_del,
+    "async_stop": _async_stop,
+    "async_ls": _async_ls,
 }
 
 @require_args(2)

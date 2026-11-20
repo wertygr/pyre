@@ -4,6 +4,7 @@ import sys
 from types import ModuleType
 from typing import Any, Callable
 
+from pyre_async import async_del
 from pyre_core import (
     Data,
     post,
@@ -52,6 +53,7 @@ def load_plugin(data: Data, plugin_name: str) -> None:
         post(e, data)
 
 def unload_plugin(plugin_name: str, data: Data) -> None:
+    async_del(data, plugin_name)
     in_sys = plugin_name in sys.modules
     in_repl = plugin_name in data.repl_mode
 
