@@ -1,5 +1,5 @@
-Function manually working with the internal buffer.
-
+Function manually working with the internal buffer(wrapper around [data._buffer](data/_buffer.md)).
+The buffer can trigger hooks
 <details> <summary> signature </summary> 
 
 buffer(data: Data, mode: str, text: str = "", use_hook: bool = True) -> str|None
@@ -35,4 +35,10 @@ example use:
 0 1 2 3 4 5 6 7 8 9
 >>>
 ```
+</details>
+
+<details> <summary> read also </summary>
+
+[data._buffer](data/_buffer.md)
+[buffer system hook](../../hook/system_hooks/buffer.md)
 </details>

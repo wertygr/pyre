@@ -1,6 +1,6 @@
 from pyre_core import str_is_int
 
-def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
+def _alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
     position =  alias_settings.get("position", None)
     if position is None:
         return True
@@ -9,7 +9,7 @@ def alias_position_validate(alias_position: int, alias_settings: dict) -> bool:
     return False
 
 
-def alias_paste(value: list[str], result: list[str], command_arg: list[str], alias_position: int) -> tuple[
+def _alias_paste(value: list[str], result: list[str], command_arg: list[str], alias_position: int) -> tuple[
     list[str], list[int]]:
     value_copy = value.copy()
     indices_to_remove = []
@@ -57,8 +57,8 @@ def alias_parser(alias_dict: dict, command_arg: list, mode: str) -> list[str]:
         value = item_dict.get("value", "NONE_ALIAS")
         scope = item_dict.get("scope", "local")
 
-        if (scope == mode) and (alias_position_validate(index, alias_dict[item])):
-            result, removed_indices = alias_paste(value, result, command_arg, index)
+        if (scope == mode) and (_alias_position_validate(index, alias_dict[item])):
+            result, removed_indices = _alias_paste(value, result, command_arg, index)
             for r_idx in removed_indices:
                 global_removals.add(r_idx)
             global_removals.add(index)
