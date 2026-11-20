@@ -80,7 +80,7 @@ def _(event):
 
 - Bindings are loaded once, when `pyre_bindings.py` is imported. Changes require restarting pyre; [\_._ settings_reload](../commands/shell_command.md) does not reload key bindings.
 - Unlike regular prompt_toolkit applications, pyre does not create a separate `KeyBindings` object per mode, so a binding added to `bindings` is active everywhere unless it checks `event.app.mode`.
-- The `_pyt++_` editor is created with the same `bindings` object in [pyre_commands.py](../../pyre_commands.py).
+- The `_pyt++_` editor is created with the same `bindings` object in [pyre_commands.py](../../commands/pyt.py).
 
 </details>
 

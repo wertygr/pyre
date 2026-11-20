@@ -1,4 +1,4 @@
-`plugins/plugins_tools/*` - official plugins sdk
+`plugins/plugin_tools/*` - official plugins sdk
 
 <details> <summary> modules </summary>
 

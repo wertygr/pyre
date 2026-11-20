@@ -6,9 +6,9 @@
 | [\_pyt++_](pyt_pp.md)                                  |        \<flag>         |                multiline editor |
 | [\_pyt-exec_](pyt_exec.md)                             |        \<code>         |                    execute code |
 | [\_pyt-eval_](pyt_eval.md)                             |        \<code>         |                       eval code |
-| [\_._](shell_command)                                  | \<command> \<argument> |                    repl command |
+| [\_._](shell_command.md)                               | \<command> \<argument> |                    repl command |
 | \_#_                                                   |       \<comment>       |                         comment |
 | \<command_1> [\_&_](command_separator.md) \<command_2> |                        |                command separato |
-| [\_sh_](sh)                                            |       \<command>       |         command on system shell |
-| [\_pyt_](pyt)                                          |        \<code>         |              auto(eval or exec) |
+| [\_sh_](sh.md)                                         |       \<command>       |         command on system shell |
+| [\_pyt_](pyt.md)                                       |        \<code>         |              auto(eval or exec) |
 </details>

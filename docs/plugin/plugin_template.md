@@ -26,7 +26,7 @@ in settings:
 }
 ```
 
-<details> <summary> reaf also </summary>
+<details> <summary> read also </summary>
 
 * [API](api/api.md)
 * [hook](hook/hook.md)
