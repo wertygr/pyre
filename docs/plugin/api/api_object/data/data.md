@@ -22,6 +22,9 @@
 | [lexer_instance](lexer_instance.md)         | RegexLexer       | lexer instance used by [pft](../pft.md)                                                          |
 | [_repl_cache_id](_repl_cache_id.md)         | int              | counter of virtual source files registered by [register_repl_source](../register_repl_source.md) |
 | [plugin_list](plugin_list.md)               | set[str]         | names of the currently loaded plugins                                                            |
+| async_loop                                  | AbstractEventLoop\|None | event loop of the async thread, see [async plugins](../../../plugin_async.md)             |
+| async_thread                                | Thread\|None     | thread of the async plugins, see [async plugins](../../../plugin_async.md)                       |
+| async_plugin                                | dict[str, Future] | async plugins that are currently running, see [async plugins](../../../plugin_async.md)        |
 
 </details>
 

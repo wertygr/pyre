@@ -14,3 +14,8 @@ commands table
 | [hook_run](shell_commands/hook_run.md) | 4                |                      artificial hook call |
 | load_plugin                            | 3                |                    artificial plugin call |
 | ls_plug                                | 2                |                   view list loads plugins |
+| [async_start](../plugin/plugin_async.md) | 2              |        start async thread and event loop |
+| [async_run](../plugin/plugin_async.md)   | 3              |          start async_main of the plugin |
+| [async_del](../plugin/plugin_async.md)   | 3              |          cancel async plugin(s) |
+| [async_stop](../plugin/plugin_async.md)  | 2              |          cancel all, stop async thread |
+| [async_ls](../plugin/plugin_async.md)    | 2              |          view async thread and plugins |

@@ -15,5 +15,6 @@
 | [flag_mapping](api_object/flag_mapping.md)                 |                      applying actions based on flags |
 | [settings_load](api_object/settings_load.md)               |                          loading settings from files |
 | [reverse_search_flag](api_object/reverse_search_flag.md)   |                     searching for flags in arguments |
+| [async_post](api_object/async_post.md)                     |          put an item into an async plugin queue |
 
 ***
