@@ -4,7 +4,7 @@ import linecache
 from collections import deque
 from functools import partial
 
-from pyre_plug_load import unload_plugin, load_plugin
+from pyre_plug_load import unload_plugin, load_plugin, _plugin_cache_load, load_module
 from pyre_async import (
     async_start,
     async_run,
@@ -80,19 +80,23 @@ def _run_script(data: Data):
 @require_args(3)
 def _async_run(data: Data):
     plugin_name = data.argv[2]
-    if not plugin_name in data.settings["plugin"]:
+    settings = data.settings["plugin"].get(plugin_name)
+
+    if not settings:
         post(f"[shell_command::async_run]: plugin: {plugin_name} does not exist", data)
         return
     if plugin_name in data.async_plugin:
         post(f"[shell_command::async_run]: plugin {plugin_name} is already running", data)
         return
-    module = data.repl_mode.get(plugin_name)
-    if module is None:
-        load_plugin(data, plugin_name)
+    try:
         module = data.repl_mode.get(plugin_name)
-    if module is None:
-        return
-    async_run(data, plugin_name, module)
+        if module is None:
+            module = load_module(data, plugin_name)
+        if module is None:
+            post(f"[shell_command::async_run]: failed to load module: {plugin_name}", data)
+        async_run(data, plugin_name, module)
+    except Exception as e:
+        post(e, data)
 @require_args(3)
 def _async_del(data: Data):
     for i in data.argv[2:]:
