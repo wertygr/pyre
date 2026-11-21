@@ -81,7 +81,6 @@ def _run_script(data: Data):
 def _async_run(data: Data):
     plugin_name = data.argv[2]
     settings = data.settings["plugin"].get(plugin_name)
-
     if not settings:
         post(f"[shell_command::async_run]: plugin: {plugin_name} does not exist", data)
         return
