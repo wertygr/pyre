@@ -80,6 +80,9 @@ def _run_script(data: Data):
 @require_args(3)
 def _async_run(data: Data):
     plugin_name = data.argv[2]
+    if not plugin_name in data.settings["plugin"]:
+        post(f"[shell_command::async_run]: plugin: {plugin_name} does not exist", data)
+        return
     if plugin_name in data.async_plugin:
         post(f"[shell_command::async_run]: plugin {plugin_name} is already running", data)
         return
