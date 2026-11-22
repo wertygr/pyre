@@ -8,5 +8,5 @@ __version__ = "0.0.1"
 __all__ = [
     *plugin_types.__all__,
     *base.__all__,
-    *meta.__al__
+    *meta.__all__
 ]
