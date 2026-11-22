@@ -24,7 +24,11 @@
 | [plugin_list](plugin_list.md)               | set[str]         | names of the currently loaded plugins                                                            |
 | async_loop                                  | AbstractEventLoop\|None | event loop of the async thread, see [async plugins](../../../plugin_async.md)             |
 | async_thread                                | Thread\|None     | thread of the async plugins, see [async plugins](../../../plugin_async.md)                       |
-| async_plugin                                | dict[str, Future] | async plugins that are currently running, see [async plugins](../../../plugin_async.md)        |
+| async_plugin                                | dict[str, Future] | futures of async plugins currently running (REPL thread view)                                   |
+| async_future                                | dict[str, Future] | futures of async plugins currently running (loop thread view)                                   |
+| async_task                                  | dict[str, Task]   | asyncio Tasks of running async plugins                                                          |
+| async_started                               | dict[str, float]  | time.monotonic() when each plugin started (for stuck detection)                                 |
+| async_beat                                  | float             | time.monotonic() refreshed every 0.1 s by the loop; 0 when thread is stopped                     |
 
 </details>
 

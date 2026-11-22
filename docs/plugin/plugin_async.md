@@ -10,7 +10,7 @@ An async plugin keeps a coroutine running in a background thread, so a long job 
 - `_._ async_start` creates one daemon thread (`pyre-async`) with one `asyncio` event loop. All async plugins share it.
 - `_._ async_run <plugin>` schedules `async_main` of the plugin on that loop (`asyncio.run_coroutine_threadsafe`).
 - Async mode is always started explicitly. There is no `async` key in the plugin settings.
-- The thread, the loop and the running plugins are stored in [data](api/api_object/data/data.md): `async_thread`, `async_loop`, `async_plugin`.
+- The thread, the loop and the running plugins are stored in [data](api/api_object/data/data.md): `async_thread`, `async_loop`, `async_plugin`, `async_future`, `async_task`, `async_started`, `async_beat`.
 
 </details>
 
@@ -41,16 +41,24 @@ Use `"cache": true` in the settings.
 
 | command                     | argc | description                                                       |
 |:----------------------------|:----:|:------------------------------------------------------------------|
-| `_._ async_start`           |  2   | start the background thread and event loop                        |
-| `_._ async_run <plugin>`    |  3   | load the plugin if needed and start its `async_main`              |
-| `_._ async_del <plugin>...` |  3   | cancel the coroutine(s), waits up to 5 s for `finally`            |
-| `_._ async_stop`            |  2   | cancel all coroutines, stop the loop, join the thread (up to 5 s) |
-| `_._ async_ls`              |  2   | thread state and running async plugins                            |
+| `_._ async start`           |  3   | start the background thread and event loop                        |
+| `_._ async run <plugin>`    |  4   | load the plugin if needed and start its `async_main`              |
+| `_._ async del <plugin>...` |  4   | cancel the coroutine(s), waits up to 5 s for `finally`            |
+| `_._ async stop`            |  3   | cancel all coroutines, stop the loop, join the thread (up to 5 s) |
+| `_._ async_ls`              |  3   | thread state, stuck info, running async plugins and queue sizes   |
 
 ```pycon
->>> _._ async_ls
+>>> _._ async ls
 thread: running
-_echo_ - async
+_async_demo_ - async, queue: 0
+_echo_ - async, queue: -
+```
+
+When the loop is stuck (no heartbeat for 3 s):
+```pycon
+>>> _._ async ls
+thread: stuck(4.2s, in: _async_demo_)
+_async_demo_ - async, queue: 0
 ```
 
 A running async plugin is also listed in [plugin_list](api/api_object/data/plugin_list.md).
@@ -70,7 +78,10 @@ Send data to the coroutine with [async_post](api/api_object/async_post.md):
 api["async_post"](data, plugin_name, item) -> bool
 ```
 
-Create the queue inside `async_main`: an `asyncio.Queue` is bound to the event loop on first use, so a queue reused after `async_stop` + `async_start` belongs to the old loop.
+> [!IMPORTANT]
+> Always create the `asyncio.Queue` **inside `async_main`**, not at module level or in `__init__`. A queue is bound to the event loop on creation; after `_._ async_stop` + `_._ async_start` the loop is a new one, so an old queue silently drops every item (`is bound to a different event loop`). `async_post` detects this and returns `False` without losing data.
+
+`async_post` returns `True` only if the item was scheduled into a live queue of the current loop; otherwise `False` (thread not running, queue missing, or queue belongs to another loop).
 
 </details>
 
@@ -114,11 +125,11 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 ```
 
 ```pycon
->>> _._ async_start
->>> _._ async_run _echo_
+>>> _._ async start
+>>> _._ async run _echo_
 >>> _echo_ hello
 [echo] hello
->>> _._ async_del _echo_
+>>> _._ async del _echo_
 ```
 
 </details>
@@ -139,28 +150,32 @@ Close live resources in the `finally` of `async_main`, not in the destructor: th
 
 <details> <summary> rules </summary>
 
-- Never block the loop: use `await asyncio.sleep`, `asyncio.open_connection`, `AsyncOpenAI`, not `time.sleep`, `socket.recv`, `requests`.
+- Never block the loop: use `await asyncio.sleep`, `asyncio.open_connection`, `AsyncOpenAI`, not `time.sleep`, `socket.recv`, `requests`... . A blocking call freezes **all** async plugins; `async ls` shows `thread: stuck(Ns, in: <name>)`.
 - Do not read `data.argv`, `data.command`, `data.postfix` from the coroutine: the REPL overwrites them on every command. Copy what you need.
 - Keep state in `plugin_space[PLUGIN_NAME]`.
 - Output from the coroutine: plain `print()` works with the prompt. Do not call `pft` or `post` from the coroutine yourself.
-- Settings are read at `async_run` time (the `api` flag); `settings_reload` does not affect running coroutines.
+- Settings are read at `async run` time (the `api` flag); `settings_reload` does not affect running coroutines.
+- `_._ async stop` and `_._ async del` cancel the coroutine inside the loop, so `finally` blocks do run before the plugin is removed. Python cannot forcibly kill a thread: a coroutine stuck in synchronous code cannot be cancelled; `async stop` reports `plugin did not stop in time` and clears the stuck thread, freeing the bus for a new `_._ async start`.
 
 </details>
 
 <details> <summary> errors </summary>
 
-An exception in `async_main` is passed to `post` with the note `[async_plugin]: <name>`. The plugin is removed from `plugin_list`, and the thread keeps running.
+An exception in `async_main` is passed to `post` with the note `[async_plugin]: <name>`. The plugin is removed from `plugin list`, and the thread keeps running.
 
-| message                                                                  | cause                                       |
-|:-------------------------------------------------------------------------|:--------------------------------------------|
-| `[async_start]: async thread is already running`                         | second `async_start`                        |
-| `[async_run]: async thread is not running(use: _._ async_start)`         | `async_run` before `async_start`            |
-| `[shell_command::async_run]: plugin <name> is already running`           | second `async_run`                          |
-| `[async_run]: plugin <name> has no async_main`                           | no `async_main` in the module               |
-| `[async_run]: <name>.async_main is not a coroutine function`             | `async_main` is a plain `def`               |
-| `[shell_command::async_del]: plugin <name> is not running in async mode` | `async_del` on a plugin that is not running |
-| `[async_stop]: async thread is not running`                              | `async_stop` without a thread               |
-| `[async_stop]: async thread did not stop in time`                        | the loop did not stop within 5 s            |
+| message                                                                   | cause                                       |
+|:--------------------------------------------------------------------------|:--------------------------------------------|
+| `[async_start]: async thread is already running`                          | second `async start`                        |
+| `[async_start]: async thread is stuck(Ns, in: <name>)`                    | old thread did not stop; name of the plugin blocking it |
+| `[async_run]: async thread is not running(use: _._ async_start)`          | `async run` before `async start`            |
+| `[shell_command::async_run]: plugin <name> is already running`            | second `async_run`                          |
+| `[async_run]: plugin <name> has no async_main`                            | no `async_main` in the module               |
+| `[async_run]: <name>.async_main is not a coroutine function`              | `async_main` is a plain `def`               |
+| `[shell_command::async_del]: plugin <name> is not running in async mode`  | `async del` on a plugin that is not running |
+| `[async_del]: plugin <name> did not stop in time(max: 5s)`                | the coroutine did not finish within 5 s     |
+| `[async_stop]: async thread is not running`                               | `async stop` without a thread               |
+| `[async_stop]: plugin did not stop in time: <names>`                      | plugins that survived cancel + wait         |
+| `[async_stop]: async thread did not stop in time`                         | the loop did not stop within 5 s            |
 
 </details>
 

@@ -103,6 +103,15 @@ class Settings(TypedDict, total=True):
     repl_mode: str
     line_name_format: str
 
+class PluginAsyncState(Protocol):
+    future: dict[str, Any] = {}
+    task: dict[str, Any] = {}
+    started: dict[str, float] = {}
+    beat: float = 0.0
+    loop: Any = None
+    thread: threading.Thread | None = None
+    plugin: dict[str, Any] = {}
+
 class PluginData(Protocol):
     last_error: str
     repl_mode: dict
@@ -129,10 +138,7 @@ class PluginData(Protocol):
     lexer: type[RegexLexer]
     lexer_instance: RegexLexer
 
-    async_loop: Any
-    async_thread: threading.Thread|None
-    async_plugin: dict[str, Any]
-
+    async_state: PluginAsyncState
 CommandFunc = Callable[[PluginData], None]
 
 __all__ = ["PluginData", "PluginApi", "PluginSettings", "Settings", "AliasSettings", "CommandContext"]

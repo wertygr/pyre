@@ -14,7 +14,7 @@ def async_post(data: Data, plugin_name: str, item: Any) -> bool:
 | plugin_name | name of the async plugin, the key in [plugin_space](../../plugin_space.md) |
 | item        | any object, delivered to the coroutine as is                     |
 
-returns `True` if the item was scheduled, `False` if the async thread is not running or the queue was not found.
+returns `True` if the item was scheduled, `False` if the async thread is not running, the queue was not found, or the queue belongs to another event loop.
 
 </details>
 
@@ -25,7 +25,9 @@ The queue is taken from [plugin_space](../../plugin_space.md) and must be an `as
 - `plugin_space[plugin_name]["queue"]`, if the value is a dict;
 - `plugin_space[plugin_name].queue`, otherwise.
 
-`False` is returned right after `_._ async_run`, until `async_main` has created the queue.
+`False` is returned right after `_._ async run`, until `async_main` has created the queue.
+
+A queue created in a previous loop (module-level `asyncio.Queue()` or kept across `_._ async stop` + `_._ async start`) returns `False`: `asyncio.Queue` is bound to one event loop forever. Create the queue **inside `async_main`**.
 
 </details>
 
@@ -53,8 +55,8 @@ def main(api: PluginApi, command_context: CommandContext, plugin_space: dict):
 ```
 
 ```pycon
->>> _._ async_start
->>> _._ async_run _echo_
+>>> _._ async start
+>>> _._ async run _echo_
 >>> _echo_ hello
 [echo] hello
 ```

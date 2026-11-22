@@ -18,6 +18,16 @@ from pygments.lexer import RegexLexer
 
 from pyre_const import SETTINGS_FILE
 
+class AsyncState:
+    def __init__(self) -> None:
+        self.future: dict[str, Any] = {}
+        self.task: dict[str, Any] = {}
+        self.started: dict[str, float] = {}
+        self.beat: float = 0.0
+        self.loop: Any = None
+        self.thread: threading.Thread | None = None
+        self.plugin: dict[str, Any] = {}
+
 class Data(PluginData):
     def __init__(self) -> None:
         self.last_error: str = ""
@@ -39,12 +49,26 @@ class Data(PluginData):
         self.lexer_instance: RegexLexer = self.lexer()
         self.plugin_list: set[str] = set()
         self._buffer: str = ""
-        self.async_loop: Any = None
-        self.async_thread: threading.Thread|None = None
-        self.async_plugin: dict[str, Any] = {}
+        self.async_state: AsyncState = AsyncState()
 
 NOP = lambda *_, **__: None
-CommandFunc = Callable[[Data], None]
+type CommandFunc = Callable[[Data], Any]
+
+class CommandMap:
+    def __init__(self, command_map: dict[str, CommandFunc], default_hook: CommandFunc|None = None) -> None:
+        self.command_map = command_map
+        self.default_hook = default_hook
+    def __call__(self, key: str, data: Data, error_message: str|None = None) -> None:
+        func = self.command_map.get(key)
+        if func:
+            func(data)
+            return
+        if self.default_hook:
+            self.default_hook(data)
+            return
+        if error_message:
+            post(error_message, data)
+
 
 def reverse_search_flag(modes: set[str], flags: list[str], def_mode: str)-> str:
     for i in reversed(flags):
@@ -60,11 +84,11 @@ def flag_mapping(flag_map: dict[str, tuple[Callable, bool]], command_args: list[
         maxlen=0
     )
 
-text_mapping = lambda text, argv, data:  flag_mapping({
+def text_mapping(text: str, argv: list[str], data: Data):
+    flag_mapping({
         "copy": (lambda: buffer(data, "write", text), True),
         "silent": (lambda: pft(text, data, end=""), False),
     }, argv)
-
 def require_args(min_argc: int) -> Callable[[CommandFunc], CommandFunc]:
     def decorator(func: CommandFunc) -> CommandFunc:
         @wraps(func)

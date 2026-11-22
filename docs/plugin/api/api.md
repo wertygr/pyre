@@ -7,8 +7,9 @@
 | [register_repl_source](api_object/register_repl_source.md) |           source code registration for introspection |
 | [PFT](api_object/pft.md)                                   | print formatted text with python syntax highlighting |
 | [post](api_object/post.md)                                 |                     outputting errors to the console |
-| [command_separator](api_object/command_separator.md)       |                 splitting arguments into subcommands |
+| [command_separators](api_object/command_separator.md)      |                 splitting arguments into subcommands |
 | [hook_dispatch](api_object/hook_dispatch.md)               |                                           hooks call |
+| [require_args](api_object/require_args.md)                 |                          min argc decorator |
 | [pars_command](api_object/pars_command.md)                 |                                      execute command |
 | [data](api_object/data/data.md)                            |                                           repl state |
 | [traceback_format](api_object/traceback_format.md)         |                                 traceback formatting |
