@@ -1,0 +1,5 @@
+SUPPORTED_ASYNC_PLUGINS: bool = True
+
+__all__ = [
+    SUPPORTED_ASYNC_PLUGINS
+]
