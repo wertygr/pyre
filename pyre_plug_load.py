@@ -45,7 +45,6 @@ def _plugin_cache_load(plugin: str, plugin_settings: dict, data: Data) -> Module
 def load_module(data: Data, plugin_name: str):
     plugin_settings = data.settings["plugin"].get(plugin_name, {})
     module = _plugin_cache_load(plugin_name, plugin_settings, data)
-    data.repl_mode[plugin_name] = module
     data.plugin_list.add(plugin_name)
     return module
 

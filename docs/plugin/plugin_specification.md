@@ -161,7 +161,6 @@ RecursionError: maximum recursion depth exceeded
 unload from:
 
 - the [destructor](plugin_destructor.md) is called
-- [data.repl_mode](api/api_object/data/repl_mode.md)
 - sys.modules
 
 </details> 
