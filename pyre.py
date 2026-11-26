@@ -16,7 +16,8 @@ from pyre_core import (
     traceback_format,
     flag_mapping,
     reverse_search_flag,
-    require_args
+    require_args,
+    CommandMap
 )
 from commands.shell_commands import shell_command
 from commands.source_code import source_code
@@ -31,6 +32,7 @@ from pyre_plug_load import (
     load_plugin,
     hooks_dispatch
 )
+from pyre_async import async_post
 from pyre_const import (
     DEFAULT_SETTINGS,
     FILE_HISTORY,
@@ -51,29 +53,28 @@ from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
 
-dispatcher_commands = {
-        "_pyt-eval_": pyt_eval,
-        "_pyt-exec_": pyt_exec,
-        "_pyt++_": pyt_pp,
-        "_pyt_": pyt,
-        "_._": shell_command,
-        "_sh_": sh,
-        "_?_": source_code,
-        "_#_": NOP,
-    }
+def search_plugin(data: Data) -> None:
+    if data.argv[0] in data.settings["plugin"]:
+        load_plugin(data, data.argv[0])
+        return
+    e = f"[search_plugin]: unknown command: {data.argv[0]}"
+    post(e, data)
+
+dispatcher_commands = CommandMap({
+    "_pyt-eval_": pyt_eval,
+    "_pyt-exec_": pyt_exec,
+    "_pyt++_": pyt_pp,
+    "_pyt_": pyt,
+    "_._": shell_command,
+    "_sh_": sh,
+    "_?_": source_code,
+    "_#_": NOP,
+}, search_plugin)
 
 def dispatcher(data: Data) -> None:
     data.postfix = " ".join(data.argv[1:])
     data.argc = len(data.argv)
-    func = dispatcher_commands.get(data.argv[0])
-    if func:
-         func(data)
-         return
-    if data.argv[0] in data.settings["plugin"]:
-        load_plugin(data, data.argv[0])
-        return
-    e = f"[dispatcher]: unknown command: {data.argv[0]}"
-    post(e, data)
+    dispatcher_commands(data.argv[0], data)
 
 #_________________________________________________________________________________________________
 
@@ -159,7 +160,8 @@ def initialisation() -> Data:
         "flag_mapping": flag_mapping,
         "reverse_search_flag": reverse_search_flag,
         "NOP": NOP,
-        "require_args": require_args
+        "require_args": require_args,
+        "async_post": async_post,
     }
     hooks_dispatch(data, "init", {"data": data})
     return data

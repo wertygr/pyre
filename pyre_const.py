@@ -4,7 +4,11 @@ FILE_HISTORY = ".py_history"
 PYT_SAVE = "pyt_save"
 PYT_CACHE = ".pyt_save"
 
-DEFAULT_SETTINGS = {
+STOP_TIMEOUT = 5
+BEAT_INTERVAL = 0.1
+STUCK_AFTER = 3.0
+
+DEFAULT_SETTINGS: dict[str, bool|dict|str] = {
     "color": {},
     "plugin": {},
     "alias_dict": {},

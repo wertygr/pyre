@@ -4,6 +4,7 @@ import sys
 from types import ModuleType
 from typing import Any, Callable
 
+from pyre_async import async_del
 from pyre_core import (
     Data,
     post,
@@ -37,12 +38,17 @@ def _plugin_cache_load(plugin: str, plugin_settings: dict, data: Data) -> Module
         module = _plugin_load(plugin, f"{script_dir}/plugins/{file_name}")
     return module
 
+def load_module(data: Data, plugin_name: str):
+    plugin_settings = data.settings["plugin"].get(plugin_name, {})
+    module = _plugin_cache_load(plugin_name, plugin_settings, data)
+    data.repl_mode[plugin_name] = module
+    data.plugin_list.add(plugin_name)
+    return module
+
 def load_plugin(data: Data, plugin_name: str) -> None:
-    plugin_settings = data.settings.get("plugin", {}).get(plugin_name, {})
+    plugin_settings = data.settings["plugin"].get(plugin_name, {})
     try:
-        module = _plugin_cache_load(plugin_name, plugin_settings, data)
-        data.repl_mode[plugin_name] = module
-        data.plugin_list.add(plugin_name)
+        module = load_module(data, plugin_name)
         module.main(api=data.api if plugin_settings.get("api", False) else {}, command_context={
             "argv": data.argv,
             "argc": data.argc,
@@ -52,6 +58,7 @@ def load_plugin(data: Data, plugin_name: str) -> None:
         post(e, data)
 
 def unload_plugin(plugin_name: str, data: Data) -> None:
+    async_del(data, plugin_name)
     in_sys = plugin_name in sys.modules
     in_repl = plugin_name in data.repl_mode
 

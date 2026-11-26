@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sys
+import threading
 from types import TracebackType
 from typing import TypedDict, Callable, Any, Protocol, TextIO, Literal
 from prompt_toolkit.styles import BaseStyle
@@ -64,6 +65,7 @@ class PluginApi(TypedDict):
     reverse_search_flag: Callable[[set[str], list[str], str], str]
     NOP: Callable[..., None]
     require_args: Callable[[int], Callable[[CommandFunc], CommandFunc]]
+    async_post: Callable[[PluginData, str, Any], bool]
 
 class CommandContext(TypedDict):
     argv: list[str]
@@ -101,6 +103,15 @@ class Settings(TypedDict, total=True):
     repl_mode: str
     line_name_format: str
 
+class PluginAsyncState(Protocol):
+    future: dict[str, Any] = {}
+    task: dict[str, Any] = {}
+    started: dict[str, float] = {}
+    beat: float = 0.0
+    loop: Any = None
+    thread: threading.Thread | None = None
+    plugin: dict[str, Any] = {}
+
 class PluginData(Protocol):
     last_error: str
     repl_mode: dict
@@ -127,6 +138,7 @@ class PluginData(Protocol):
     lexer: type[RegexLexer]
     lexer_instance: RegexLexer
 
+    async_state: PluginAsyncState
 CommandFunc = Callable[[PluginData], None]
 
 __all__ = ["PluginData", "PluginApi", "PluginSettings", "Settings", "AliasSettings", "CommandContext"]
