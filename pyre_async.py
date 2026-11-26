@@ -5,6 +5,8 @@ import time
 from concurrent import futures
 from typing import Any, TypeVar
 
+from plugins.plugin_tools.lib.base import PluginExit
+
 from pyre_core import (
     Data,
     post,
@@ -17,6 +19,8 @@ from pyre_const import (
 T = TypeVar("T")
 
 def _plugin_error(data: Data, plugin_name: str, e: BaseException) -> None:
+    if isinstance(e, PluginExit):
+        return
     e.add_note(f"[async_plugin]: {plugin_name}")
     post(e, data, use_hook=False)
 

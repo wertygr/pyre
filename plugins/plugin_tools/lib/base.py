@@ -8,4 +8,10 @@ def base_destructor(package: str|None) -> None: # __package__
         if module == package or module.startswith(prefix):
             sys.modules.pop(module, None)
 
-__all__ = ["base_destructor"]
+class PluginExit(Exception):
+    ...
+
+__all__ = [
+    "base_destructor",
+    "PluginExit",
+]

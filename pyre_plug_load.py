@@ -4,6 +4,8 @@ import sys
 from types import ModuleType
 from typing import Any, Callable
 
+from plugins.plugin_tools.lib.base import PluginExit
+
 from pyre_async import async_del
 from pyre_core import (
     Data,
@@ -25,6 +27,8 @@ def _destructor_call(module: ModuleType|None, data: Data) -> None:
     if isinstance(getattr(module, "destructor", None), Callable):
         try:
             module.destructor(plugin_space=data.plugin_space)
+        except PluginExit:
+            ...
         except Exception as e:
             post(e, data)
 
@@ -54,6 +58,8 @@ def load_plugin(data: Data, plugin_name: str) -> None:
             "argc": data.argc,
             "postfix": data.postfix
         }, plugin_space=data.plugin_space)
+    except PluginExit:
+        ...
     except Exception as e:
         post(e, data)
 
@@ -92,6 +98,8 @@ def hooks_dispatch(data: Data, hook_name: str, hook_parameter: dict) -> list[Any
             )
             data.plugin_list.add(i)
             result.append(result_plug_load)
+        except PluginExit:
+            ...
         except Exception as e:
             post(e, data, use_hook=False if hook_name in {"pft", "post", "__any__"} else True)
     return result
