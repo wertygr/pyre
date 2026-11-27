@@ -50,6 +50,7 @@ class Data(PluginData):
         self.plugin_list: set[str] = set()
         self._buffer: str = ""
         self.async_state: AsyncState = AsyncState()
+        self.command_completer = None
 
 NOP = lambda *_, **__: None
 type CommandFunc = Callable[[Data], Any]

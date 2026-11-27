@@ -1,9 +1,9 @@
 import os
 import json
-import shlex
 
 from pyre_bottom_toolbar import bottom_toolbar
 from pyre_alias import alias_parser
+from pyre_commands import CommandCompletion, PLUGINS_TREE
 from pyre_core import (
     NOP,
     pft,
@@ -28,6 +28,7 @@ from commands.pyt import (
     pyt_exec,
 )
 from commands.sh import sh
+from pyre_pars_command import pars_command
 from pyre_plug_load import (
     load_plugin,
     hooks_dispatch
@@ -78,35 +79,45 @@ def dispatcher(data: Data) -> None:
 
 #_________________________________________________________________________________________________
 
-def pars_command(data: Data) -> None:
-    if data.settings["shlex"]:
-        try:
-            data.argv = shlex.split(data.command, posix=bool(data.settings["posix"]))
-        except ValueError as e:
-            post(e, data)
-            return
-    else:
-        data.argv = data.command.split()
-
-    if len(data.argv) < 1:
-        e = "[pars_command]: not enough arguments"
-        post(e, data)
-        return
-    if data.settings["alias_globals"]:
-        data.argv = alias_parser(data.settings["alias_dict"], data.argv, "global")
-    if data.settings["separator"]:
-        commands = command_separators(data.argv)
-        for i in commands:
-            if data.settings["alias_locals"]:
-                data.argv = alias_parser(data.settings["alias_dict"], i, "local")
-            dispatcher(data)
-    else:
-        if data.settings["alias_locals"]:
-            i = alias_parser(data.settings["alias_dict"], data.argv, "local")
-        else:
-            i = data.argv
-        data.argv = i
-        dispatcher(data)
+# def pars_command(data: Data, final_pars: bool = True, text: str = "") -> list[list[str]]:
+#     result = []
+#     if final_pars:
+#         text = data.command
+#
+#     if data.settings["shlex"]:
+#         try:
+#             data.argv = shlex.split(text, posix=bool(data.settings["posix"]))
+#         except ValueError as e:
+#             if final_pars:
+#                 post(e, data)
+#             return []
+#     else:
+#         data.argv = text.split()
+#
+#     if len(data.argv) < 1:
+#         e = "[pars_command]: not enough arguments"
+#         post(e, data)
+#         return []
+#     if data.settings["alias_globals"]:
+#         data.argv = alias_parser(data.settings["alias_dict"], data.argv, "global")
+#     if data.settings["separator"]:
+#         commands = command_separators(data.argv)
+#         for i in commands:
+#             if data.settings["alias_locals"]:
+#                 data.argv = alias_parser(data.settings["alias_dict"], i, "local")
+#             result.append(data.argv)
+#             if final_pars:
+#                 dispatcher(data)
+#     else:
+#         if data.settings["alias_locals"]:
+#             i = alias_parser(data.settings["alias_dict"], data.argv, "local")
+#         else:
+#             i = data.argv
+#         data.argv = i
+#         result.append(data.argv)
+#         if final_pars:
+#             dispatcher(data)
+#     return result
 
 #_________________________________________________________________________________________________
 
@@ -163,6 +174,7 @@ def initialisation() -> Data:
         "require_args": require_args,
         "async_post": async_post,
     }
+    data.command_completer = CommandCompletion(data, PLUGINS_TREE)
     hooks_dispatch(data, "init", {"data": data})
     return data
 
@@ -181,7 +193,8 @@ def repl_cycle(data: Data) -> None:
         try:
             data.command = session.prompt(
                 data.settings["prompt"],
-                completer=DynamicCompleter(lambda: completer(data)) if data.settings["completer"] else None,
+                # completer=DynamicCompleter(lambda: completer(data)) if data.settings["completer"] else None,
+                completer=data.command_completer if data.settings["completer"] else None,
                 multiline=data.settings["multiline"],
                 lexer=PygmentsLexer(data.lexer),
                 style=data.pt_style,
@@ -190,7 +203,9 @@ def repl_cycle(data: Data) -> None:
                 mouse_support=data.settings["mouse_support"],
                 bottom_toolbar=toolbar() if data.settings["bottom_toolbar"] else None,
             )
-            pars_command(data)
+            for i in pars_command(data):
+                data.argv = i
+                dispatcher(data)
         except (EOFError, KeyboardInterrupt):
             pass
         except Exception as e:
