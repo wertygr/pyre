@@ -6,25 +6,7 @@ from pyre_pars_command import pars_command
 from prompt_toolkit.completion import Completer, Completion, PathCompleter
 
 class PathCompleterType: ...
-
-PLUGINS_TREE = {
-    '_._': {
-        'settings_reload': PathCompleterType(),  # 'path' — подсказывать файлы
-        'help': None,
-    },
-    '_ppm_': {
-        'ls': None,
-        'install': ['_ppm_', '_panel_', 'build'],
-        'remove': ['_ppm_', '_panel_', 'build'],
-    },
-    '_panel_': {
-        'start': None,
-        'stop': None,
-    },
-    'build': {
-        'run': PathCompleterType(),
-    },
-}
+import pyre_core
 
 class CompleteState:
     def __init__(self, data: Data, document: Document, complete_event, path_complete) -> None:
@@ -34,15 +16,14 @@ class CompleteState:
         self.path_completer = path_complete
 
 class CommandCompletion(Completer):
-    def __init__(self, data: Data, tree: dict) -> None:
+    def __init__(self, data: Data) -> None:
         self.data = data
-        self.tree = tree
         self.path_completer = PathCompleter()
 
     def get_completions(self, document, complete_event):
         text = document.text_before_cursor
         commands = pars_command(self.data, False, text)
-        trailing_space = text.endswith((" ", "\n", "\t", "\v")) or text == ''
+        trailing_space = text.endswith((" ", "\n", "\t", "\v", "\a")) or text == ''
 
         if not commands or (trailing_space and (not(len(commands[-1])) if len(commands) else False)):
             current_cmd = []
@@ -54,7 +35,7 @@ class CommandCompletion(Completer):
                 current_word = ''
             else:
                 current_word = current_cmd.pop() if current_cmd else ''
-        node = self.tree
+        node = pyre_core.completer_map
         for token in current_cmd:
             if isinstance(node, dict) and token in node:
                 node = node[token]
@@ -74,7 +55,7 @@ class CommandCompletion(Completer):
             return
         elif callable(node):
             try:
-                candidates = node(current_word, current_cmd, document)
+                candidates = node(CompleteState(self.data, document, complete_event, self.path_completer))
             except Exception as e:
                 post(e, self.data)
                 return
@@ -86,5 +67,5 @@ class CommandCompletion(Completer):
             return
 
         for item in candidates:
-            if item.startswith(current_word):
+            if isinstance(item, str) and item.startswith(current_word):
                 yield Completion(item, start_position=-len(current_word))

@@ -4,6 +4,7 @@ import linecache
 from collections import deque
 from functools import partial
 
+from pyre_commands import PathCompleterType
 from pyre_plug_load import unload_plugin, load_plugin, load_module
 from pyre_async import (
     async_start,
@@ -133,19 +134,30 @@ def _async_command(data: Data) -> None:
 shell_commands_map = CommandMap({
     "clear": lambda _: os.system("cls") if os.name == "nt" else print("\033c", end=""),
     "exit": lambda _: sys.exit(0),
-    "settings_reload": lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]),
-    "run": _run_script,
-    "read_vf": _read_vf,
-    "del_vf": _del_vf,
-    "unload_plug": lambda data: deque(map(partial(unload_plugin, data=data), data.argv[2:]),maxlen=0),
+    "settings_reload": (
+        lambda data: data.api["settings_load"](data, SETTINGS_FILE if data.argc < 3 else data.argv[2]),
+        PathCompleterType(),
+    ),
+    "run": (_run_script, PathCompleterType()),
+    "read_vf": (_read_vf, lambda state: list(linecache.cache.keys())),
+    "del_vf": (_del_vf, lambda state: list(linecache.cache.keys())),
+    "unload_plug": (
+        lambda data: deque(map(partial(unload_plugin, data=data), data.argv[2:]), maxlen=0),
+        lambda state: state.data.plugin_list,
+    ),
     "critical_error": _critical_error,
     "hook_run": _hook_run,
-    "load_plug": lambda data: deque(map(partial(load_plugin, data), data.argv[2:]), maxlen=0),
+    "load_plug": (
+        lambda data: deque(map(partial(load_plugin, data), data.argv[2:]), maxlen=0),
+        lambda state: state.data.settings["plugin"].keys(),
+    ),
     "buffer": _buffer_command,
     "ls_vf": lambda data: text_mapping("\n".join(f"{i} - {sum(len(line) for line in linecache.getlines(i))} char" for i in linecache.cache), data.argv[2:], data),
-    "ls_plug": lambda data: text_mapping("\n".join(data.plugin_list), data.argv[2:], data),
-    "async": _async_command,
-})
+    "ls_plug": (lambda data: text_mapping("\n".join(data.plugin_list), data.argv[2:], data),
+                ("copy", "silent")
+               ),
+    "async": _async_command
+}, prefix=("_._", ))
 
 @require_args(2)
 def shell_command(data: Data) -> None:

@@ -19,9 +19,10 @@ def pars_command(data: Data, final_pars: bool = True, text: str = "") -> list[li
     else:
         argv = text.split()
 
-    if len(argv) < 1:
-        e = "[pars_command]: not enough arguments"
-        post(e, data)
+    if not len(argv):
+        if final_pars:
+            e = "[pars_command]: not enough arguments"
+            post(e, data)
         return []
     if data.settings["alias_globals"]:
         argv = alias_parser(data.settings["alias_dict"], argv, "global")
@@ -31,8 +32,6 @@ def pars_command(data: Data, final_pars: bool = True, text: str = "") -> list[li
             if data.settings["alias_locals"]:
                 argv = alias_parser(data.settings["alias_dict"], i, "local")
             result.append(argv)
-            # if final_pars:
-            #     dispatcher(data)
     else:
         if data.settings["alias_locals"]:
             i = alias_parser(data.settings["alias_dict"], argv, "local")
@@ -40,6 +39,4 @@ def pars_command(data: Data, final_pars: bool = True, text: str = "") -> list[li
             i = argv
         argv = i
         result.append(argv)
-        # if final_pars:
-        #     dispatcher(data)
     return result

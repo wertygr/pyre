@@ -3,7 +3,7 @@ import json
 
 from pyre_bottom_toolbar import bottom_toolbar
 from pyre_alias import alias_parser
-from pyre_commands import CommandCompletion, PLUGINS_TREE
+from pyre_commands import CommandCompletion
 from pyre_core import (
     NOP,
     pft,
@@ -39,7 +39,6 @@ from pyre_const import (
     FILE_HISTORY,
     SETTINGS_FILE,
 )
-from pyre_prompt_toolkit import completer
 from pyre_bindings import bindings
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
@@ -49,7 +48,6 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.history import FileHistory
 from pygments.token import string_to_tokentype
 from prompt_toolkit.lexers import PygmentsLexer
-from prompt_toolkit.completion import DynamicCompleter
 from prompt_toolkit.styles import style_from_pygments_dict
 
 #_________________________________________________________________________________________________
@@ -76,50 +74,6 @@ def dispatcher(data: Data) -> None:
     data.postfix = " ".join(data.argv[1:])
     data.argc = len(data.argv)
     dispatcher_commands(data.argv[0], data)
-
-#_________________________________________________________________________________________________
-
-# def pars_command(data: Data, final_pars: bool = True, text: str = "") -> list[list[str]]:
-#     result = []
-#     if final_pars:
-#         text = data.command
-#
-#     if data.settings["shlex"]:
-#         try:
-#             data.argv = shlex.split(text, posix=bool(data.settings["posix"]))
-#         except ValueError as e:
-#             if final_pars:
-#                 post(e, data)
-#             return []
-#     else:
-#         data.argv = text.split()
-#
-#     if len(data.argv) < 1:
-#         e = "[pars_command]: not enough arguments"
-#         post(e, data)
-#         return []
-#     if data.settings["alias_globals"]:
-#         data.argv = alias_parser(data.settings["alias_dict"], data.argv, "global")
-#     if data.settings["separator"]:
-#         commands = command_separators(data.argv)
-#         for i in commands:
-#             if data.settings["alias_locals"]:
-#                 data.argv = alias_parser(data.settings["alias_dict"], i, "local")
-#             result.append(data.argv)
-#             if final_pars:
-#                 dispatcher(data)
-#     else:
-#         if data.settings["alias_locals"]:
-#             i = alias_parser(data.settings["alias_dict"], data.argv, "local")
-#         else:
-#             i = data.argv
-#         data.argv = i
-#         result.append(data.argv)
-#         if final_pars:
-#             dispatcher(data)
-#     return result
-
-#_________________________________________________________________________________________________
 
 def settings_load(data: Data, file: str = SETTINGS_FILE) -> None:
     data.settings_file = os.path.abspath(file)
@@ -174,7 +128,7 @@ def initialisation() -> Data:
         "require_args": require_args,
         "async_post": async_post,
     }
-    data.command_completer = CommandCompletion(data, PLUGINS_TREE)
+    data.command_completer = CommandCompletion(data)
     hooks_dispatch(data, "init", {"data": data})
     return data
 

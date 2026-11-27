@@ -18,6 +18,8 @@ from pygments.lexer import RegexLexer
 
 from pyre_const import SETTINGS_FILE
 
+
+
 class AsyncState:
     def __init__(self) -> None:
         self.future: dict[str, Any] = {}
@@ -55,11 +57,39 @@ class Data(PluginData):
 NOP = lambda *_, **__: None
 type CommandFunc = Callable[[Data], Any]
 
+
+def set_key(data: Any, keys: list[Any], value: Any) -> None:
+    for key in keys[:-1]:
+        if key not in data:
+            data[key] = {}
+        data = data[key]
+
+    data[keys[-1]] = value
+
+completer_map = {}
 class CommandMap:
-    def __init__(self, command_map: dict[str, CommandFunc], default_hook: CommandFunc|None = None) -> None:
-        self.command_map = command_map
+    def __init__(
+        self,
+        command_map: dict[str, CommandFunc | tuple[CommandFunc, Any]],
+        default_hook: CommandFunc | None = None,
+        prefix: tuple[str, ...] | None = None,
+    ) -> None:
+        self.command_map: dict[str, CommandFunc] = {}
+        self.completers: dict[str, Any] = {}
         self.default_hook = default_hook
-    def __call__(self, key: str, data: Data, error_message: str|None = None) -> None:
+
+        for key, value in command_map.items():
+            if isinstance(value, tuple):
+                func, comp = value
+                self.command_map[key] = func
+                self.completers[key] = comp
+                if prefix is not None:
+                    set_key(completer_map, (*prefix, key), comp)
+            else:
+                self.command_map[key] = value
+                if prefix is not None:
+                    set_key(completer_map, (*prefix, key), None)
+    def __call__(self, key: str, data: Data, error_message: str | None = None) -> None:
         func = self.command_map.get(key)
         if func:
             func(data)
